@@ -138,7 +138,7 @@ function pickBriefing(theme) {
 }
 
 // ─── MATH HELPERS ────────────────────────────────────────────────────────────
-function generateAddSub(max = 10) {
+function generateAddSub(max = 20) {
   const op = Math.random() > 0.5 ? "+" : "-";
   if (op === "+") {
     const a = Math.floor(Math.random() * (max - 1)) + 1;
@@ -153,7 +153,7 @@ function generateAddSub(max = 10) {
 }
 
 function generateFuelProblem() {
-  const answer = Math.floor(Math.random() * 7) + 3;
+  const answer = Math.floor(Math.random() * 14) + 3;
   const a = Math.floor(Math.random() * (answer - 1)) + 1;
   const b = answer - a;
   return { a, b, op: "+", answer, display: `${a} + ${b}` };
@@ -367,7 +367,7 @@ const NumberLinePuzzle = ({ problem, onCorrect, onWrong }) => {
   const glowColor = result === "correct" ? "#4ade80" : result === "wrong" ? "#ef4444" : "#7dd3fc";
 
   return (
-    <div style={{ width: "100%", maxWidth: 560 }}>
+    <div style={{ width: "100%", maxWidth: 570 }}>
       <div style={{
         background: "rgba(15,10,40,0.7)", border: "2px solid #4c1d95",
         borderRadius: 16, padding: "20px 24px", marginBottom: 20, textAlign: "center",
@@ -499,13 +499,14 @@ export default function LatseMathApp() {
 
   const startQuest = () => {
     const theme = QUEST_THEMES[Math.floor(Math.random() * QUEST_THEMES.length)];
-    const planet = PLANET_NAMES[Math.floor(Math.random() * PLANET_NAMES.length)];
     const pIndex = Math.floor(Math.random() * Math.max(IMAGES.planets.length, 6));
     const res = RESOURCE_SETS[Math.floor(Math.random() * RESOURCE_SETS.length)];
     const fuel = generateFuelProblem();
     const planet2 = generateAddSub(10);
     const pType = Math.random() > 0.5 ? "drag" : "numberline";
     const b = pickBriefing(theme.type);
+
+    const planet = b.planet;
 
     setQuest({ theme, planet });
     setBriefing(b);
@@ -625,7 +626,7 @@ export default function LatseMathApp() {
               <div>
                 <div style={{ color: "#9ca3af", fontSize: 13 }}>The Breeze needs fuel!</div>
                 <div style={{ fontSize: 16, color: "#f1f5f9", fontWeight: 700 }}>
-                  Drag exactly <b style={{ color: "#fde047" }}>{fuelProblem?.answer}</b> {resource.emoji} {resource.name}
+                  Drag the correct number of {resource.emoji} {resource.name}
                 </div>
               </div>
             </div>
@@ -653,36 +654,38 @@ export default function LatseMathApp() {
 
         {/* ── PLANET PUZZLE ── */}
         {phase === PHASES.PLANET_PUZZLE && (
-          <div style={{ width: "100%", maxWidth: 560, animation: "slideIn 0.4s ease" }}>
-            {/* Planet header */}
-            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14, background: "rgba(15,10,40,0.7)", borderRadius: 16, padding: "14px 20px", border: "2px solid #4c1d95" }}>
-              {IMAGES.planets[planetIndex % IMAGES.planets.length]
-                ? <img src={IMAGES.planets[planetIndex % IMAGES.planets.length]} alt="Planet" style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
-                : <PlanetPlaceholder index={planetIndex} size={60} />
-              }
-              <div>
-                <div style={{ color: "#9ca3af", fontSize: 12, textTransform: "uppercase", letterSpacing: 2 }}>You've arrived at</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: "#f1f5f9" }}>{quest?.planet}</div>
-                <div style={{ color: "#c4b5fd", fontSize: 13 }}>{quest?.theme.emoji} {quest?.theme.label}</div>
-              </div>
-            </div>
-
-            {/* Mission briefing */}
-            {briefing && (
-              <div style={{ background: "rgba(10,6,30,0.85)", border: "2px solid #4c1d95", borderRadius: 14, padding: "16px 20px", marginBottom: 16, position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #7c3aed, #7dd3fc, #7c3aed)" }} />
-                <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 3, color: "#7dd3fc", fontWeight: 700, marginBottom: 8 }}>📖 Mission Briefing</div>
-                <div style={{ color: "#e2e8f0", fontSize: 15, lineHeight: 1.7, fontFamily: "'Nunito', sans-serif", fontStyle: "italic" }}>
-                  {briefing.lines[1]}
+          <center>
+            <div style={{ width: "100%", maxWidth: 570, animation: "slideIn 0.4s ease" }}>
+              {/* Planet header */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14, background: "rgba(15,10,40,0.7)", borderRadius: 16, padding: "14px 20px", border: "2px solid #4c1d95" }}>
+                {IMAGES.planets[planetIndex % IMAGES.planets.length]
+                  ? <img src={IMAGES.planets[planetIndex % IMAGES.planets.length]} alt="Planet" style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+                  : <PlanetPlaceholder index={planetIndex} size={60} />
+                }
+                <div>
+                  <div style={{ color: "#9ca3af", fontSize: 12, textTransform: "uppercase", letterSpacing: 2 }}>You've arrived at</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#f1f5f9" }}>{quest?.planet}</div>
+                  <div style={{ color: "#c4b5fd", fontSize: 13 }}>{quest?.theme.emoji} {quest?.theme.label}</div>
                 </div>
               </div>
-            )}
 
-            {puzzleType === "drag"
-              ? <FuelPuzzle problem={planetProblem} resource={resource} onCorrect={handlePlanetCorrect} onWrong={handleWrong} />
-              : <NumberLinePuzzle problem={planetProblem} onCorrect={handlePlanetCorrect} onWrong={handleWrong} />
-            }
-          </div>
+              {/* Mission briefing */}
+              {briefing && (
+                <div style={{ background: "rgba(10,6,30,0.85)", border: "2px solid #4c1d95", borderRadius: 14, padding: "16px 20px", marginBottom: 16, position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #7c3aed, #7dd3fc, #7c3aed)" }} />
+                  <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 3, color: "#7dd3fc", fontWeight: 700, marginBottom: 8 }}>📖 Mission Briefing</div>
+                  <div style={{ color: "#e2e8f0", fontSize: 15, lineHeight: 1.7, fontFamily: "'Nunito', sans-serif", fontStyle: "italic" }}>
+                    {briefing.lines[1]}
+                  </div>
+                </div>
+              )}
+
+              {puzzleType === "drag"
+                ? <FuelPuzzle problem={planetProblem} resource={resource} onCorrect={handlePlanetCorrect} onWrong={handleWrong} />
+                : <NumberLinePuzzle problem={planetProblem} onCorrect={handlePlanetCorrect} onWrong={handleWrong} />
+              }
+            </div>
+          </center>
         )}
 
         {/* ── VICTORY ── */}
